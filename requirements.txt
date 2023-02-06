@@ -1,0 +1,13 @@
+### External Python libraries to install in venv
+# TODO: add versions (maybe?)
+
+# blockchain stuff
+web3==5.30.0
+pysha3==1.0.2
+
+# server stuff
+python-dotenv==0.16.0
+
+# db
+SQLAlchemy==1.4.41 # sqlalchemy TODO: upgrade to 2.0
+psycopg2==2.9.3
