@@ -9,4 +9,11 @@
 # 3. claim voucher with different address
 
 
+# NOTICE: using js to make use of iexec library. See main.mjs
+###########################################
+
+
+
 import web3
+
+# ...
