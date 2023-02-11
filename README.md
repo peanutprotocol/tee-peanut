@@ -11,7 +11,7 @@ https://crosspl-my.sharepoint.com/personal/mikolaj_glinka_cross_pl/_layouts/15/D
 ### Main JS app
 1. Install [Node.js](https://nodejs.org/en/download/) (v12.16.1)
 2. Run `npm install` in the root directory
-3. Run `npm run start` in the root directory
+3. Run `node main.mjs` to start the script
 
 ### Smart Contracts
 Notice: Contract already deployed on Goerli at: https://goerli.etherscan.io/address/0x084012de7258604b7ddfed69da102eb52d13ce02#code 
