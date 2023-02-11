@@ -1,0 +1,25 @@
+{
+  "description": "A python-based TEE app that implements private payment links in the Peanut Protocol (https://peanut.to/)",
+  "license": "MIT",
+  "author": "Peanut Protocol",
+  "social": {
+    "website": "https://peanut.to",
+    "github": "https://github.com/ProphetFund/tee-peanut"
+  },
+  "logo": "logo.png",
+  "buyConf": {
+    "params": {
+      "iexec_args": ""
+    },
+    "tag": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "trust": "0",
+    "callback": "0x0000000000000000000000000000000000000000"
+  },
+  "app": {
+    "owner": "TODO",
+    "name": "python-peanut-payment-link",
+    "type": "DOCKER",
+    "multiaddr": "TODO",
+    "checksum": "TODO"
+  }
+}
