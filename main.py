@@ -78,6 +78,7 @@ try:
     ### 1) iExecTeeApp will check 3 blockchain data providers (e.g. alchemy, moralis, infura) to confirm if the tx has been included in a block and whether the details check out. API keys will be stored in a confidential asset (encrypted dataset)
     oracle_depositor = Counter()
     oracle_amount = Counter()
+    oracle_to = Counter()
     # get tx info from alchemy https://docs.alchemy.com/reference/eth-gettransactionbyhash
     url = f"https://{NETWORK_NAMES['alchemy'][NETWORK]}.g.alchemy.com/v2/{API_KEYS['alchemy']}"
     payload = {
@@ -94,6 +95,7 @@ try:
     if isinstance(json_response["result"]["blockHash"], str):
         oracle_depositor.update([json_response["result"]["from"]])
         oracle_amount.update([json_response["result"]["value"]])
+        oracle_to.update([json_response["result"]["to"]])
 
     # get tx info from infura https://docs.infura.io/infura/networks/ethereum/json-rpc-methods/eth_gettransactionbyhash
     url = (
@@ -113,6 +115,7 @@ try:
     if isinstance(json_response["result"]["blockHash"], str):
         oracle_depositor.update([json_response["result"]["from"]])
         oracle_amount.update([json_response["result"]["value"]])
+        oracle_to.update([json_response["result"]["to"]])
 
     # get tx info from pokt
     url = f"https://{NETWORK_NAMES['pokt'][NETWORK]}.gateway.pokt.network/v1/lb/{API_KEYS['pokt']}"
@@ -130,20 +133,27 @@ try:
     if isinstance(json_response["result"]["blockHash"], str):
         oracle_depositor.update([json_response["result"]["from"]])
         oracle_amount.update([json_response["result"]["value"]])
+        oracle_to.update([json_response["result"]["to"]])
 
     # sum up the oracle info
     most_common_depositor = Counter(oracle_depositor).most_common(1)
     most_common_amount = Counter(oracle_amount).most_common(1)
+    most_common_to = Counter(oracle_to).most_common(1)
     depositor = None if most_common_depositor[0][1] < 2 else most_common_depositor[0][0]
     amount = None if most_common_amount[0][1] < 2 else most_common_amount[0][0]
+    to = None if most_common_to[0][1] < 2 else most_common_to[0][0]
 
     # assert oracle consensus
-    if depositor is None or amount is None:
+    if depositor is None or amount is None or to is None:
         print("no oracle consensus")
         exit(1)
 
+    if to != "0x084012de7258604b7ddfed69da102eb52d13ce02":
+        print("deposit recipient not a peanut smartcontract")
+        exit(1)
+
     # assert signer is the depositor
-    if signer != depositor:
+    if signer.lower() != depositor.lower():
         print("wrong signer")
         exit(1)
 
