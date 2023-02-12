@@ -39,7 +39,7 @@ const main = async () => {
     // get receipt
     const receipt = await tx.wait();
     console.log("Full Receipt: " + JSON.stringify(receipt));
-    const hash = receipt.transactionHash;
+    const hash = utils.keccak256(utils.toUtf8Bytes(receipt.transactionHash));
     // const hash = "0xed89062ab5c2be24c31d1dbd5895133d01f330dd362921a49682ad322de613f8";  // debug hash
     console.log("Hash: " + hash);
 
@@ -68,11 +68,19 @@ const main = async () => {
 
     // create request order
     const iexecordermodule = IExecOrderModule.fromConfig(config);
+    // prerequisities: app developer secret (with 0x) & secret dataset pushed to the SMS
     const requestorderTemplate = await iexecordermodule.createRequestorder({
         app: '0x6B2f9C513E51965A0dB9BA1EEa5bC81E5Fc7C711',
         category: 0,
         params: {
-            iexec_args: '0xf32bd66495eebca9a0d3ba8f3bab9daacf0bd522261c47b18281d5d51191ce2a 0x7d5fd8969cd3fcf276aea950d1c978b002819cd068c59d7bb5b97926bb7a39e1'
+            iexec_args: hash+' '+receipt.transactionHash//'TODO: msgHash msg',
+            iexec_secrets: {
+                "1": hashSignature,//"TODO: msgSig",
+                "2": "sampleVoucherId"//"TODO: voucherId"
+            },
+            dataset: "TODO: input secret dataset id",
+            tag: "tee",
+            iexec_result_encryption: true
         }
        });
     console.log("\nRequest order: " + JSON.stringify(requestorderTemplate));
@@ -84,6 +92,7 @@ const main = async () => {
     console.log("\nPublished Request order: " + JSON.stringify(publishedRequestorder));
     
     // ...? Get computation result?
+    //the results are in the following format: {"msg": ["voucherId;amount"], "msg_hash": [sign_msg.messageHash.hex()], "sig": [sign_msg.signature.hex()]}
 
     ////////////////////////////////
     // 3. GIVE VOUCHER TO 3RD PARTY
