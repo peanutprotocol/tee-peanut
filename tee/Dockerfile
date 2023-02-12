@@ -1,8 +1,10 @@
-FROM python:3.10
+# FROM python:3.10
+FROM python:3.7.3-alpine3.10
+
 ### install python dependencies if you have some
 COPY requirements.txt ./
-RUN apt-get update 
-### RUN apt-get install -y gcc 
+# RUN apt-get update 
+# RUN apt-get install -y gcc 
 RUN pip3 install --no-cache-dir --upgrade pip 
 RUN pip3 install --no-cache-dir -r requirements.txt
 COPY ./src /app

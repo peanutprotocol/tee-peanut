@@ -13,7 +13,7 @@ import { ethers } from 'ethers';
 // import { IExec } from 'iexec';
 // i'll never understand js imports
 import pkg from 'iexec';
-const { IExec, IExecConfig, IExecAccountModule, IExecWalletModule, IExecOrderModule, utils } = pkg;
+const { IExec, IExecConfig, IExecAccountModule, IExecWalletModule, IExecOrderModule, IExecSecretsModule, utils } = pkg;
 
 
 import dotenv from 'dotenv';
@@ -39,7 +39,8 @@ const main = async () => {
     // get receipt
     const receipt = await tx.wait();
     console.log("Full Receipt: " + JSON.stringify(receipt));
-    const hash = utils.keccak256(utils.toUtf8Bytes(receipt.transactionHash));
+    const txHash = receipt.transactionHash;
+    const hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(receipt.transactionHash));
     // const hash = "0xed89062ab5c2be24c31d1dbd5895133d01f330dd362921a49682ad322de613f8";  // debug hash
     console.log("Hash: " + hash);
 
@@ -63,17 +64,34 @@ const main = async () => {
     const iexec = IExec.fromConfig(config);
 
     // also instanciate IExecModules sharing the same configuration
-    const account = IExecAccountModule.fromConfig(config);
-    const iexecWallet = IExecWalletModule.fromConfig(config);
+    // const account = IExecAccountModule.fromConfig(config);
+    // const iexecWallet = IExecWalletModule.fromConfig(config);
+    const iexecSecrets = IExecSecretsModule.fromConfig(config);
+
 
     // create request order
     const iexecordermodule = IExecOrderModule.fromConfig(config);
+
+    // I think here we have to use pushRequesterSecret ?
+    // @dev: im getting error that SMS doesnt work on goerli. I'm assuming
+    // push secrets to the SMS
+    const secret1 = await iexecSecrets.pushRequesterSecret("1", hashSignature);
+    const secret2 = await iexecSecrets.pushRequesterSecret("2", "sampleVoucherId");
+
+    // check that secrets are pushed
+    const secret1Check = await iexecSecrets.checkRequesterSecretExists("1", ethProvider.address);
+    const secret2Check = await iexecSecrets.checkRequesterSecretExists("2", ethProvider.address);
+    console.log("Secret 1: " + secret1Check);
+    console.log("Secret 2: " + secret2Check);
+
+
     // prerequisities: app developer secret (without 0x) & secret dataset pushed to the SMS
     const requestorderTemplate = await iexecordermodule.createRequestorder({
-        app: '0x6B2f9C513E51965A0dB9BA1EEa5bC81E5Fc7C711',
+        // app: '0x6B2f9C513E51965A0dB9BA1EEa5bC81E5Fc7C711', // non-tee old app
+        app: '0x22bf4bff2b40A3BE098892970E079077851eC664', // new tee app
         category: 0,
         params: {
-            iexec_args: hash+' '+receipt.transactionHash//'TODO: msgHash msg',
+            iexec_args: hash+' '+receipt.transactionHash,//'TODO: msgHash msg',
             iexec_secrets: {
                 "1": hashSignature,//"TODO: msgSig",
                 "2": "sampleVoucherId"//"TODO: voucherId"
@@ -84,7 +102,7 @@ const main = async () => {
         }
        });
     console.log("\nRequest order: " + JSON.stringify(requestorderTemplate));
-    // sign request order
+    // sign request order 
     const signedRequestorder = await iexecordermodule.signRequestorder(requestorderTemplate);
     console.log("\nSigned Request order: " + JSON.stringify(signedRequestorder));
     // publish request order

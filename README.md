@@ -23,6 +23,8 @@ Notice: Contract already deployed on Goerli at: https://goerli.etherscan.io/addr
 4. Deploy contracts: `brownie run scripts/deploy.py` (optionally, you can specify a network with `--network <network>`)
 
 ### TEE
+Notice: Enclave iexec image deployed on bellecour at 0x22bf4bff2b40A3BE098892970E079077851eC664
 
 1. Build docker image: `docker build . --tag peanut-v0.1`
-2. 
+2. Sconify it: `./sconify.sh`
+3. Update iexec.json (at least hash + fingerprint)

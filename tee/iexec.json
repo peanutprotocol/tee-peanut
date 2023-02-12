@@ -20,6 +20,13 @@
     "name": "python-peanut-payment-link",
     "type": "DOCKER",
     "multiaddr": "registry.hub.docker.com/montenegrohugo/peanut-v0.1",
-    "checksum": "0x516df9a369de433b3724d1b68ceb4567e919d6c106b9d88919603acc77533c3c"
+    "checksum": "0xea4a5842d665316795e9c4f990d77b4e095de4c79338b5f701136ef524798d0e",
+    "mrenclave": {
+      "provider": "SCONE",
+      "version": "v5",
+      "entrypoint": "python3 /app/app.py",
+      "heapSize": 1073741824,
+      "fingerprint": "e50121fdaa64800c0c52e598c184a921c71b8ef2ed0144196726b00b5c2518cb"
+    }
   }
 }
