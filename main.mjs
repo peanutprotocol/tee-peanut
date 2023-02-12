@@ -33,16 +33,18 @@ const main = async () => {
     // instantiate contract
     const peanutContract = new ethers.Contract(process.env.GOERLI_CONTRACT_ADDRESS, peanutLibrary.PRIVATE_PEANUT_ABI, wallet);
     
-    // make deposit
-    const tx = await peanutContract.deposit({value: ethers.utils.parseEther("0.0123")});
+    // UNCOMMENT NEXT LINES IN FINAL VERSION
+    // // make deposit
+    // const tx = await peanutContract.deposit({value: ethers.utils.parseEther("0.0123")});
 
-    // get receipt
-    const receipt = await tx.wait();
-    console.log("Full Receipt: " + JSON.stringify(receipt));
-    const txHash = receipt.transactionHash;
+    // // get receipt
+    // const receipt = await tx.wait();
+    // // console.log("Full Receipt: " + JSON.stringify(receipt));
+    // const txHash = receipt.transactionHash;
+    const receipt = {transactionHash:"0xed89062ab5c2be24c31d1dbd5895133d01f330dd362921a49682ad322de613f8"}
     const hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(receipt.transactionHash));
     // const hash = "0xed89062ab5c2be24c31d1dbd5895133d01f330dd362921a49682ad322de613f8";  // debug hash
-    console.log("Hash: " + hash);
+    console.log("Transaction Hash: " + hash);
 
     ////////////////////////////////
     // 2. CREATE VOUCHER
@@ -57,7 +59,8 @@ const main = async () => {
 
     // instanciate iExec SDK
     const ethProvider = utils.getSignerFromPrivateKey(
-        process.env.POKT_GOERLI_RPC,
+        // process.env.POKT_GOERLI_RPC,
+        "https://bellecour2.iex.ec/",
         process.env.DEV_WALLET_PRIVATE_KEY
     )
     const config = new IExecConfig({ ethProvider: ethProvider });
@@ -72,17 +75,21 @@ const main = async () => {
     // create request order
     const iexecordermodule = IExecOrderModule.fromConfig(config);
 
-    // I think here we have to use pushRequesterSecret ?
-    // @dev: im getting error that SMS doesnt work on goerli. I'm assuming
     // push secrets to the SMS
-    const secret1 = await iexecSecrets.pushRequesterSecret("1", hashSignature);
-    const secret2 = await iexecSecrets.pushRequesterSecret("2", "sampleVoucherId");
+    // TODO: push encryption key to SMS
+    try {
+        const secret1 = await iexecSecrets.pushRequesterSecret("1", hashSignature);
+        const secret2 = await iexecSecrets.pushRequesterSecret("2", "sampleVoucherId");
+    } catch (error) {
+        console.log("Error pushing secrets to SMS: " + error);
+        // secrets probably already exist
+    }
 
     // check that secrets are pushed
-    const secret1Check = await iexecSecrets.checkRequesterSecretExists("1", ethProvider.address);
-    const secret2Check = await iexecSecrets.checkRequesterSecretExists("2", ethProvider.address);
-    console.log("Secret 1: " + secret1Check);
-    console.log("Secret 2: " + secret2Check);
+    // const secret1Check = await iexecSecrets.checkRequesterSecretExists("1", ethProvider.address);
+    // const secret2Check = await iexecSecrets.checkRequesterSecretExists("2", ethProvider.address);
+    // console.log("Secret 1: " + secret1Check);
+    // console.log("Secret 2: " + secret2Check);
 
 
     // prerequisities: app developer secret (without 0x) & secret dataset pushed to the SMS
@@ -92,10 +99,11 @@ const main = async () => {
         category: 0,
         params: {
             iexec_args: hash+' '+receipt.transactionHash,//'TODO: msgHash msg',
-            iexec_secrets: {
-                "1": hashSignature,//"TODO: msgSig",
-                "2": "sampleVoucherId"//"TODO: voucherId"
-            },
+            // @dev not supported,has to be done in pushRequesterSecret I think
+            // iexec_secrets: { 
+            //     "1": hashSignature, //"TODO: msgSig",
+            //     "2": "sampleVoucherId" //"TODO: voucherId"
+            // },
             dataset: "TODO: input secret dataset id",
             tag: "tee",
             iexec_result_encryption: true
