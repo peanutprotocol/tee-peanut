@@ -13,12 +13,14 @@ import { ethers } from 'ethers';
 // import { IExec } from 'iexec';
 // i'll never understand js imports
 import pkg from 'iexec';
-const { IExec, IExecConfig, IExecAccountModule, IExecWalletModule, IExecOrderModule, IExecSecretsModule, utils } = pkg;
+const { IExec, IExecConfig, IExecAccountModule, IExecWalletModule, IExecAppModule, IExecOrderModule, IExecSecretsModule, utils } = pkg;
 
 
 import dotenv from 'dotenv';
 dotenv.config();
 
+const APP_ADDRESS = "0x22bf4bff2b40A3BE098892970E079077851eC664";
+const DATASET_ADDRESS = "0xe7d615d87Fd6524f7C9d6Ac30123c0B8B9Eb473C";
 
 const main = async () => {
     ////////////////////////////////
@@ -63,49 +65,58 @@ const main = async () => {
         "https://bellecour2.iex.ec/",
         process.env.DEV_WALLET_PRIVATE_KEY
     )
+    console.log("Requester address: " + ethProvider.address)
     const config = new IExecConfig({ ethProvider: ethProvider });
     const iexec = IExec.fromConfig(config);
 
     // also instanciate IExecModules sharing the same configuration
     // const account = IExecAccountModule.fromConfig(config);
     // const iexecWallet = IExecWalletModule.fromConfig(config);
+    const iexecApp = IExecAppModule.fromConfig(config);
     const iexecSecrets = IExecSecretsModule.fromConfig(config);
 
 
     // create request order
     const iexecordermodule = IExecOrderModule.fromConfig(config);
 
+    // check if dev / app secret exists
+    const isSecretSet = await iexecApp.checkAppSecretExists(APP_ADDRESS);
+    console.log('app secret set:', isSecretSet);
+
     // push secrets to the SMS
+    //console.log("pushRequesterSecret")
     // TODO: push encryption key to SMS
-    try {
-        const secret1 = await iexecSecrets.pushRequesterSecret("1", hashSignature);
-        const secret2 = await iexecSecrets.pushRequesterSecret("2", "sampleVoucherId");
-    } catch (error) {
-        console.log("Error pushing secrets to SMS: " + error);
-        // secrets probably already exist
-    }
+    // try {
+    //     const secret1 = await iexecSecrets.pushRequesterSecret("signature", hashSignature);
+    //     const secret2 = await iexecSecrets.pushRequesterSecret("voucherid", "sampleVoucherId");
+    // } catch (error) {
+    //     console.log("Error pushing secrets to SMS: " + error);
+    //     // secrets probably already exist
+    // }
 
     // check that secrets are pushed
-    // const secret1Check = await iexecSecrets.checkRequesterSecretExists("1", ethProvider.address);
-    // const secret2Check = await iexecSecrets.checkRequesterSecretExists("2", ethProvider.address);
-    // console.log("Secret 1: " + secret1Check);
-    // console.log("Secret 2: " + secret2Check);
+    console.log("checkRequesterSecretExists")
+    //checkRequesterSecretExists(requesterAddress, "my-password");
+    const secret1Check = await iexecSecrets.checkRequesterSecretExists(ethProvider.address, "signature");
+    const secret2Check = await iexecSecrets.checkRequesterSecretExists(ethProvider.address, "voucherid");
+    console.log("Secret 1: " + secret1Check);
+    console.log("Secret 2: " + secret2Check);
 
 
     // prerequisities: app developer secret (without 0x) & secret dataset pushed to the SMS
+    console.log("createRequestorder")
     const requestorderTemplate = await iexecordermodule.createRequestorder({
         // app: '0x6B2f9C513E51965A0dB9BA1EEa5bC81E5Fc7C711', // non-tee old app
-        app: '0x22bf4bff2b40A3BE098892970E079077851eC664', // new tee app
+        app: APP_ADDRESS, // new tee app
         category: 0,
         params: {
             iexec_args: hash+' '+receipt.transactionHash,//'TODO: msgHash msg',
-            // @dev not supported,has to be done in pushRequesterSecret I think
-            // iexec_secrets: { 
-            //     "1": hashSignature, //"TODO: msgSig",
-            //     "2": "sampleVoucherId" //"TODO: voucherId"
-            // },
-            dataset: "TODO: input secret dataset id",
+            dataset: DATASET_ADDRESS,
             tag: "tee",
+            iexec_secrets: { 
+                "1": "signature", //"TODO: msgSig",
+                "2": "voucherid" //"TODO: voucherId"
+            },
             iexec_result_encryption: true
         }
        });

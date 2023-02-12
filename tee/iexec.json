@@ -28,5 +28,25 @@
       "heapSize": 1073741824,
       "fingerprint": "e50121fdaa64800c0c52e598c184a921c71b8ef2ed0144196726b00b5c2518cb"
     }
+  },
+  "dapps": [{
+    "name": "Recomanded-dapp-for-MyDataset",
+    "addresses": {
+      "5": "0x0000000000000000000000000000000000000000"
+    },
+    "buyConf": {
+      "params": {
+        "iexec_args": ""
+      },
+      "tag": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "trust": "0",
+      "callback": "0x0000000000000000000000000000000000000000"
+    }
+  }],
+  "dataset": {
+    "owner": "0xdd7c7bEDaeE46fd0F37E726Dafbf97BBA203e9f9",
+    "name": "dataset.json",
+    "multiaddr": "https://datasets-peanut.s3.eu-central-1.amazonaws.com/dataset.json.enc",
+    "checksum": "0x6a82d836b20ec94df59461726ec3e74371a6216473d980aa4d70348b18280802"
   }
 }

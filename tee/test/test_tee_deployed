@@ -1,0 +1,8 @@
+Default worker pool
+iexec app run 0x22bf4bff2b40A3BE098892970E079077851eC664 --tag tee --dataset 0xe7d615d87Fd6524f7C9d6Ac30123c0B8B9Eb473C --secret 1=signature --secret 2=voucherid --args "0xf32bd66495eebca9a0d3ba8f3bab9daacf0bd522261c47b18281d5d51191ce2a 0x7d5fd8969cd3fcf276aea950d1c978b002819cd068c59d7bb5b97926bb7a39e1" --encrypt-result --watch --chain bellecour
+
+Debug worker pool
+iexec app run 0x22bf4bff2b40A3BE098892970E079077851eC664 --tag tee --dataset 0xe7d615d87Fd6524f7C9d6Ac30123c0B8B9Eb473C --secret 1=signature --secret 2=voucherid --args "0xf32bd66495eebca9a0d3ba8f3bab9daacf0bd522261c47b18281d5d51191ce2a 0x7d5fd8969cd3fcf276aea950d1c978b002819cd068c59d7bb5b97926bb7a39e1" --encrypt-result --workerpool v7-debug.main.pools.iexec.eth --watch --chain bellecour
+
+--secret 1= 0xd03b2ccc71936c39cf9573510c15df27c5a34b6c8482df1a6efe8994f4bb0e8d00af09b522012ec1f8d7f8573dea8449faf168a0fa92c6b99238d07679e7f1631b
+--secret 2= samplevoucherid1
