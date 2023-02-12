@@ -1,7 +1,6 @@
 ### CUSTOM IGNORES
 ## SECRETS (DON'T TOUCH THIS)
 secrets.json
-.env
 .env2
 2.env
 main.css

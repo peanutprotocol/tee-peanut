@@ -11,8 +11,10 @@ import * as peanutLibrary from './peanutLibrary.mjs'
 import { ethers } from 'ethers';
 
 // import { IExec } from 'iexec';
+// i'll never understand js imports
 import pkg from 'iexec';
-const { IExec } = pkg;
+const { IExec, IExecConfig, IExecAccountModule, IExecWalletModule, IExecOrderModule, utils } = pkg;
+
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -22,6 +24,7 @@ const main = async () => {
     ////////////////////////////////
     // 1. CREATE DEPOSIT
     ////////////////////////////////
+    console.log("\nCreating deposit...");
 
     // initialize test wallet and set provider
     const provider = new ethers.providers.JsonRpcProvider(process.env.POKT_GOERLI_RPC);
@@ -29,7 +32,7 @@ const main = async () => {
 
     // instantiate contract
     const peanutContract = new ethers.Contract(process.env.GOERLI_CONTRACT_ADDRESS, peanutLibrary.PRIVATE_PEANUT_ABI, wallet);
-
+    
     // make deposit
     const tx = await peanutContract.deposit({value: ethers.utils.parseEther("0.0123")});
 
@@ -37,30 +40,56 @@ const main = async () => {
     const receipt = await tx.wait();
     console.log("Full Receipt: " + JSON.stringify(receipt));
     const hash = receipt.transactionHash;
+    // const hash = "0xed89062ab5c2be24c31d1dbd5895133d01f330dd362921a49682ad322de613f8";  // debug hash
     console.log("Hash: " + hash);
 
     ////////////////////////////////
     // 2. CREATE VOUCHER
     ////////////////////////////////
+    console.log("\nCreating voucher...");
 
     // Sign the hash with the wallets private key
     const hashSignature = await wallet.signMessage(hash);
     console.log("Hash Signature: " + hashSignature);
 
     // Call iexec TEE endpoint to create voucher
-    const ethProvider = new ethers.providers.JsonRpcProvider(process.env.POKT_GOERLI_RPC);
-    const iexec = new IExec({
-        ethProvider,
-      });
 
-    // ...? Call iexec
-    // See docs: https://github.com/iExecBlockchainComputing/iexec-sdk/blob/HEAD/docs/README.md (backend section)
+    // instanciate iExec SDK
+    const ethProvider = utils.getSignerFromPrivateKey(
+        process.env.POKT_GOERLI_RPC,
+        process.env.DEV_WALLET_PRIVATE_KEY
+    )
+    const config = new IExecConfig({ ethProvider: ethProvider });
+    const iexec = IExec.fromConfig(config);
 
+    // also instanciate IExecModules sharing the same configuration
+    const account = IExecAccountModule.fromConfig(config);
+    const iexecWallet = IExecWalletModule.fromConfig(config);
+
+    // create request order
+    const iexecordermodule = IExecOrderModule.fromConfig(config);
+    const requestorderTemplate = await iexecordermodule.createRequestorder({
+        app: '0x6B2f9C513E51965A0dB9BA1EEa5bC81E5Fc7C711',
+        category: 0,
+        params: {
+            iexec_args: '0xf32bd66495eebca9a0d3ba8f3bab9daacf0bd522261c47b18281d5d51191ce2a 0x7d5fd8969cd3fcf276aea950d1c978b002819cd068c59d7bb5b97926bb7a39e1'
+        }
+       });
+    console.log("\nRequest order: " + JSON.stringify(requestorderTemplate));
+    // sign request order
+    const signedRequestorder = await iexecordermodule.signRequestorder(requestorderTemplate);
+    console.log("\nSigned Request order: " + JSON.stringify(signedRequestorder));
+    // publish request order
+    const publishedRequestorder = await iexecordermodule.publishRequestorder(signedRequestorder);
+    console.log("\nPublished Request order: " + JSON.stringify(publishedRequestorder));
+    
+    // ...? Get computation result?
 
     ////////////////////////////////
     // 3. GIVE VOUCHER TO 3RD PARTY
     // We assume it was transferred via email or some other secure channel
     ////////////////////////////////
+    console.log("\nRedeeming voucher...");
 
     const wallet2 = new ethers.Wallet(process.env.DEV_WALLET2_PRIVATE_KEY, provider);
 

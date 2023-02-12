@@ -23,4 +23,6 @@ Notice: Contract already deployed on Goerli at: https://goerli.etherscan.io/addr
 4. Deploy contracts: `brownie run scripts/deploy.py` (optionally, you can specify a network with `--network <network>`)
 
 ### TEE
-...
+
+1. Build docker image: `docker build . --tag peanut-v0.1`
+2. 

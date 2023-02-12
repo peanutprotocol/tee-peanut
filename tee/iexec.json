@@ -16,10 +16,10 @@
     "callback": "0x0000000000000000000000000000000000000000"
   },
   "app": {
-    "owner": "TODO",
+    "owner": "0xdd7c7bEDaeE46fd0F37E726Dafbf97BBA203e9f9",
     "name": "python-peanut-payment-link",
     "type": "DOCKER",
-    "multiaddr": "TODO",
-    "checksum": "TODO"
+    "multiaddr": "registry.hub.docker.com/montenegrohugo/peanut-v0.1",
+    "checksum": "0x516df9a369de433b3724d1b68ceb4567e919d6c106b9d88919603acc77533c3c"
   }
 }
