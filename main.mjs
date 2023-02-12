@@ -68,7 +68,7 @@ const main = async () => {
 
     // create request order
     const iexecordermodule = IExecOrderModule.fromConfig(config);
-    // prerequisities: app developer secret (with 0x) & secret dataset pushed to the SMS
+    // prerequisities: app developer secret (without 0x) & secret dataset pushed to the SMS
     const requestorderTemplate = await iexecordermodule.createRequestorder({
         app: '0x6B2f9C513E51965A0dB9BA1EEa5bC81E5Fc7C711',
         category: 0,
