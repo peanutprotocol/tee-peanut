@@ -1,5 +1,5 @@
 {
-  "description": "A python-based TEE app that implements private payment links in the Peanut Protocol (https://peanut.to/)",
+  "description": "A python-based TEE app that implements private payment links in the Peanut Protocol (https://peanut.to/). It uses the iExec Trusted Execution Environment to protect the inputs, computation and outputs.",
   "license": "MIT",
   "author": "Peanut Protocol",
   "social": {
@@ -11,16 +11,16 @@
     "params": {
       "iexec_args": ""
     },
-    "tag": "0x0000000000000000000000000000000000000000000000000000000000000000",
-    "trust": "0",
+    "tag": "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "trust": "1",
     "callback": "0x0000000000000000000000000000000000000000"
   },
   "app": {
     "owner": "0xdd7c7bEDaeE46fd0F37E726Dafbf97BBA203e9f9",
-    "name": "python-peanut-payment-link",
+    "name": "peanut-v0.1",
     "type": "DOCKER",
-    "multiaddr": "registry.hub.docker.com/montenegrohugo/peanut-v0.1",
-    "checksum": "0xea4a5842d665316795e9c4f990d77b4e095de4c79338b5f701136ef524798d0e",
+    "multiaddr": "registry.hub.docker.com/montenegrohugo/peanut-v0.1:latest",
+    "checksum": "0x83e6064d93d01d2b9176446ad262eccf18e855745ff274f7b026d09ba7b3793b",
     "mrenclave": {
       "provider": "SCONE",
       "version": "v5",

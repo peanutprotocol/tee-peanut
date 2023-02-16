@@ -25,30 +25,34 @@ try:
     try:
         # dev_secret stores the TEE's private key, must not be prepended with a 0x
         dev_secret = os.environ["IEXEC_APP_DEVELOPER_SECRET"]
-    except Exception:
+    except Exception as e:
         print("missing IEXEC_APP_DEVELOPER_SECRET")
+        print(e)
         exit(1)
 
     try:
         # req_secret_1 stores depositor's message signature
         req_secret_1 = os.environ["IEXEC_REQUESTER_SECRET_1"]
-    except Exception:
+    except Exception as e:
         print("missing IEXEC_REQUESTER_SECRET_1")
+        print(e)
         exit(1)
 
     try:
         # req_secret_2 stores voucher id to generate. TODO: replace getting voucher id from requester with a hash of txId + privateKey
         req_secret_2 = os.environ["IEXEC_REQUESTER_SECRET_2"]
-    except Exception:
-        print("missing IEXEC_REQUESTER_SECRET_1")
+    except Exception as e:
+        print("missing IEXEC_REQUESTER_SECRET_2")
+        print(e)
         exit(1)
 
     try:
         dataset_file = open(iexec_in + "/" + dataset_filename, "r")
         dataset = dataset_file.read()
         API_KEYS = json.loads(dataset)
-    except OSError:
+    except OSError as e:
         print("confidential file does not exists or data corrupted")
+        print(e)
         exit(1)
 
     # sys.argv stores depositor's message and message hash in a string, seperated with a whitespace
