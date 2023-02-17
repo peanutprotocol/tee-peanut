@@ -3,7 +3,7 @@
 # declare the app entrypoint
 ENTRYPOINT="python3 /app/app.py"
 # declare an image name
-IMG_NAME="peanut-v0.1"
+IMG_NAME="peanut-v0.2"
 
 IMG_FROM=${IMG_NAME}:temp-non-tee
 IMG_TO=${IMG_NAME}:tee-debug
@@ -14,7 +14,7 @@ docker build . -t ${IMG_FROM} --no-cache
 # run the sconifier to build the TEE image based on the non-TEE image
 docker run -it \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            registry.scontain.com:5050/scone-production/iexec-sconify-image:5.3.15-v4 \
+            registry.scontain.com:5050/scone-production/iexec-sconify-image:5.3.15-v6 \
             sconify_iexec \
             --name=${IMG_NAME} \
             --from=${IMG_FROM} \
