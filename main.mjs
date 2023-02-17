@@ -7,6 +7,16 @@
 // 
 ////////////////////////////////////////
 
+
+// ℹ Using app 0x446C7f1eBE132535ae8eF3a20aA4045Bc7AD9897
+// ℹ Creating apporder
+// ℹ Using dataset 0xe7d615d87Fd6524f7C9d6Ac30123c0B8B9Eb473C
+// ℹ Creating datasetorder
+// ℹ Using workerpool v7-debug.main.pools.iexec.eth
+// ℹ Fetching workerpoolorder from iExec Marketplace
+// ℹ Creating requestorder
+
+
 import * as peanutLibrary from './peanutLibrary.mjs'
 import { ethers } from 'ethers';
 
@@ -21,6 +31,8 @@ dotenv.config();
 
 const APP_ADDRESS = "0x22bf4bff2b40A3BE098892970E079077851eC664";
 const DATASET_ADDRESS = "0xe7d615d87Fd6524f7C9d6Ac30123c0B8B9Eb473C";
+const CATEGORY = 0;
+const WORKERPOOL = "0x9849E7496CdBFf132c84753591D09B181c25f29a"; // workerpool v7-debug.main.pools.iexec.eth
 
 const main = async () => {
     ////////////////////////////////
@@ -141,10 +153,10 @@ const main = async () => {
     const configOwner = new IExecConfig({ ethProvider: ethProviderOwner });
     const iexecordermoduleOwner = IExecOrderModule.fromConfig(configOwner);
 
-    const apporderTemplate = await iexecordermoduleOwner.createApporder({ app: APP_ADDRESS });
-    const signedApporder = await iexecordermoduleOwner.signApporder(apporderTemplate);
-    const apporderHash = await iexecordermoduleOwner.publishApporder(signedApporder);
-    console.log('Published App Order: ', apporderHash);
+    // const apporderTemplate = await iexecordermoduleOwner.createApporder({ app: APP_ADDRESS });
+    // const signedApporder = await iexecordermoduleOwner.signApporder(apporderTemplate);
+    // const apporderHash = await iexecordermoduleOwner.publishApporder(signedApporder);
+    // console.log('Published App Order: ', apporderHash);
 
 
     // create request order
@@ -154,15 +166,20 @@ const main = async () => {
     const requestorderTemplate = await iexecordermodule.createRequestorder({
         // app: '0x6B2f9C513E51965A0dB9BA1EEa5bC81E5Fc7C711', // non-tee old app
         app: APP_ADDRESS, // new tee app
+        requester: wallet.address,
+        volume: 1,
         category: 0,
+        trust: 1,
+        dataset: DATASET_ADDRESS,
+        tag: ["tee"],
         params: {
             iexec_args: hash + ' ' + receipt.transactionHash,//'TODO: msgHash msg',
             dataset: DATASET_ADDRESS,
             tag: "tee",
-            // iexec_secrets: { 
-            //     "1": "signature", //"TODO: msgSig",
-            //     "2": "voucherid" //"TODO: voucherId"
-            // },
+            iexec_secrets: { 
+                "1": "signature", //"TODO: msgSig",
+                "2": "voucherid" //"TODO: voucherId"
+            },
             iexec_result_encryption: true
         }
     });
@@ -177,21 +194,26 @@ const main = async () => {
     const iexecOrderbook = IExecOrderbookModule.fromConfig(config);
 
     // get workerpool order
-    const { count, orders } = await iexecOrderbook.fetchWorkerpoolOrderbook();
+    const { count, orders } = await iexecOrderbook.fetchWorkerpoolOrderbook({CATEGORY, WORKERPOOL, minTag:['tee']});
     const workerpoolorder = orders[0]?.order;
 
-    // FINALLY: MATCH ORDERS
+    // get app order
     const { orders: appOrders } = await iexecOrderbook.fetchAppOrderbook(
-        APP_ADDRESS
+        APP_ADDRESS, {minTag: ['tee']}
     );
-    // const appOrder = appOrders && appOrders[0] && appOrders[0].order;
-    // if (!appOrder) throw Error(`no apporder found for app ${APP_ADDRESS}`);
+    const appOrder = appOrders && appOrders[0] && appOrders[0].order;
+    if (!appOrder) throw Error(`no apporder found for app ${APP_ADDRESS}`);
+
+    // get dataset order
+    const { order, remaining } = await iexec.orderbook.fetchDatasetorder(orderHash);
     
+    // FINALLY: MATCH ORDERS
     // const dealId = "0xf335a1a7ff88caaf383197e12bea4fa771647bc881431d5cc30fcc1a42c6b20d" // debug (apparently can only be one deal at a time?)
     const { dealId, taskTxHash } = await iexecordermodule.matchOrders({
-        apporder: signedApporder,
+        apporder: appOrder,
         requestorder: signedRequestorder,
         workerpoolorder: workerpoolorder,
+        datasetorder: order
     });
     console.log(`created deal ${dealId} in tx ${taskTxHash}`);
     // get taskId from dealId
