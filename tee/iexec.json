@@ -17,10 +17,10 @@
   },
   "app": {
     "owner": "0xdd7c7bEDaeE46fd0F37E726Dafbf97BBA203e9f9",
-    "name": "peanut-v0.1",
+    "name": "peanut-v0.2",
     "type": "DOCKER",
-    "multiaddr": "registry.hub.docker.com/montenegrohugo/peanut-v0.1:latest",
-    "checksum": "0x83e6064d93d01d2b9176446ad262eccf18e855745ff274f7b026d09ba7b3793b",
+    "multiaddr": "registry.hub.docker.com/montenegrohugo/peanut-v0.2:tee-debug",
+    "checksum": "0x9a8e12ece24baf2135e6eb7d0fb4e366fa8694ac26a884cc02149daa081cf1f3",
     "mrenclave": {
       "provider": "SCONE",
       "version": "v5",

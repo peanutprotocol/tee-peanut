@@ -4,7 +4,9 @@
     "goerli": {},
     "viviani": {},
     "mainnet": {},
-    "bellecour": {},
+    "bellecour": {
+      "sms": "https://v7.sms.debug-tee-services.bellecour.iex.ec"
+    },
     "enterprise": {},
     "enterprise-testnet": {}
   }
