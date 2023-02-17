@@ -29,10 +29,16 @@ const { IExec, IExecConfig, IExecAccountModule, IExecDealModule, IExecWalletModu
 import dotenv from 'dotenv';
 dotenv.config();
 
-const APP_ADDRESS = "0x22bf4bff2b40A3BE098892970E079077851eC664";
+const APP_ADDRESS = "0x16c5eE85CA60C301a32Abb705e6098a4c3B7840E";
 const DATASET_ADDRESS = "0xe7d615d87Fd6524f7C9d6Ac30123c0B8B9Eb473C";
 const CATEGORY = 0;
-const WORKERPOOL = "0x9849E7496CdBFf132c84753591D09B181c25f29a"; // workerpool v7-debug.main.pools.iexec.eth
+const WORKERPOOL_ADDERSS = "0x9849E7496CdBFf132c84753591D09B181c25f29a"; // workerpool v7-debug.main.pools.iexec.eth // 0xeb14dc854a8873e419183c81a657d025ec70276b v7-prod.main.pools.iexec.eth
+const VOUCHER_ID = "1"
+const MAX = 1000;
+
+function getRandomString() {
+    return Math.floor(Math.random() * MAX).toString();
+  }
 
 const main = async () => {
     ////////////////////////////////
@@ -56,45 +62,47 @@ const main = async () => {
     // // console.log("Full Receipt: " + JSON.stringify(receipt));
     // const txHash = receipt.transactionHash;
     const receipt = { transactionHash: "0xed89062ab5c2be24c31d1dbd5895133d01f330dd362921a49682ad322de613f8" }
-    const hash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(receipt.transactionHash));
-    // const hash = "0xed89062ab5c2be24c31d1dbd5895133d01f330dd362921a49682ad322de613f8";  // debug hash
-    console.log("Transaction Hash: " + hash);
 
     ////////////////////////////////
     // 2. CREATE VOUCHER
     ////////////////////////////////
     console.log("\nCreating voucher...");
 
+    // Calculating message's hash
+    const stringHash = ethers.utils.solidityKeccak256(["address"], [receipt.transactionHash]);
+    // console.log("MsgHash0: " + stringHash);
+    // alternative way to solidityKeccak256(["address"], [receipt.transactionHash]);
+    // var msg3 = ethers.utils.keccak256(receipt.transactionHash);
+    // console.log("MsgHash3: " + msg3);
+
+    const msgHash = ethers.utils.hashMessage(ethers.utils.arrayify(stringHash))
+    console.log("msgHash: " + msgHash);
+
     // Sign the hash with the wallets private key
-    const hashSignature = await wallet.signMessage(hash);
-    console.log("Hash Signature: " + hashSignature);
+    const stringHashbinary = ethers.utils.arrayify(stringHash);
+    const signature = await wallet.signMessage(stringHashbinary);
+    console.log("SECRET: Signature: " + signature);
 
     // Call iexec TEE endpoint to create voucher
 
     // instanciate iExec SDK
     const ethProvider = utils.getSignerFromPrivateKey(
-        // process.env.POKT_GOERLI_RPC,
         "https://bellecour2.iex.ec/",
         process.env.DEV_WALLET_PRIVATE_KEY
     )
+    const configArgs = { ethProvider: ethProvider, chainId: "134" };
+    const configOptions = { smsURL: "https://v7.sms.debug-tee-services.bellecour.iex.ec/" };
+    const iexec = new IExec(configArgs, configOptions);
+
     console.log("Requester address: " + ethProvider.address)
     const config = new IExecConfig({ ethProvider: ethProvider });
-    const iexec = IExec.fromConfig(config);
-
-    // also instanciate IExecModules sharing the same configuration
-    // const account = IExecAccountModule.fromConfig(config);
-    // const iexecWallet = IExecWalletModule.fromConfig(config);
-    const iexecApp = IExecAppModule.fromConfig(config);
-    const iexecSecrets = IExecSecretsModule.fromConfig(config);
-
-
 
     // result decryption key
-    const iexecResults = IExecResultModule.fromConfig(config);
-    const isEncryptionKeyAvailable = await iexecResults.checkResultEncryptionKeyExists(ethProvider.address);
+    console.log("\nENCRYPTION KEY...");
+    const isEncryptionKeyAvailable = await iexec.result.checkResultEncryptionKeyExists(ethProvider.address);
     console.log('encryption key available:', isEncryptionKeyAvailable);
     if (!isEncryptionKeyAvailable) {
-        const { ekIsPushed } = await iexecResults.pushResultEncryptionKey(
+        const { ekIsPushed } = await iexec.result.pushResultEncryptionKey(
             `-----BEGIN PUBLIC KEY-----
             MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA0gKRKKNCLe1O+A8nRsOc
             gnnvLwE+rpvmKnjOTzoR8ZBTaIjD1dqlhPyJ3kgUnKyCNqru9ayf0srUddwj+20N
@@ -113,119 +121,114 @@ const main = async () => {
         console.log('encryption key pushed:', ekIsPushed);
     }
 
-
-
     // push ipfs storage token
-    const iexecStorage = IExecStorageModule.fromConfig(config);
-    const isIpfsStorageInitialized = await iexecStorage.checkStorageTokenExists(ethProvider.address);
-    console.log('IPFS storage initialized:', isIpfsStorageInitialized);
+    console.log("\nBENEFICIARY STORAGE ...");
+    const isIpfsStorageInitialized = await iexec.storage.checkStorageTokenExists(ethProvider.address);
+    console.log('Storage previously initialized:', isIpfsStorageInitialized);
     if (!isIpfsStorageInitialized) {
-        const token = await iexecStorage.defaultStorageLogin();
-        const { isPushed } = await iexecStorage.pushStorageToken(token);
-        console.log('default storage initialized:', isPushed);
+        const token = await iexec.storage.defaultStorageLogin();
+        const { isPushed } = await iexec.storage.pushStorageToken(token, {forceUpdate: true});
+        console.log('Default  IPFS storage initialized:', isPushed);
     }
 
-    // check if dev / app secret exists
-    const isSecretSet = await iexecApp.checkAppSecretExists(APP_ADDRESS);
-    console.log('app secret set:', isSecretSet);
-
+    // check that requester secrets are pushed
+    console.log("\nREQUESTER SECRETS ...");
+    var secretName1 = getRandomString();
+    var secretName2 = secretName1+'2';
+    var secret1Check = await iexec.secrets.checkRequesterSecretExists(ethProvider.address, secretName1);
+    var secret2Check = await iexec.secrets.checkRequesterSecretExists(ethProvider.address, secretName2);
+    while (secret1Check || secret2Check) {
+        secretName1 = getRandomString();
+        secretName2 = secretName1+'2';
+        secret1Check = await iexec.secrets.checkRequesterSecretExists(ethProvider.address, secretName1);
+        secret2Check = await iexec.secrets.checkRequesterSecretExists(ethProvider.address, secretName2);
+    }
+    
     // push secrets to the SMS
     try {
-        const secret1 = await iexecSecrets.pushRequesterSecret("signature", hashSignature);
-        const secret2 = await iexecSecrets.pushRequesterSecret("voucherid", "sampleVoucherId");
+        console.log("SECRET: pushing req secret 1 ...: " + signature);
+        const secret1 = await iexec.secrets.pushRequesterSecret(secretName1, signature);
+        console.log("SECRET: pushing req secret 2 ...: " + VOUCHER_ID);
+        const secret2 = await iexec.secrets.pushRequesterSecret(secretName2, VOUCHER_ID);
     } catch (error) {
         console.log("Error pushing secrets to SMS: " + error);
-        // secrets probably already exist
     }
-    // check that secrets are pushed
-    const secret1Check = await iexecSecrets.checkRequesterSecretExists(ethProvider.address, "signature");
-    const secret2Check = await iexecSecrets.checkRequesterSecretExists(ethProvider.address, "voucherid");
-    console.log("Secret 1: " + secret1Check);
-    console.log("Secret 2: " + secret2Check);
 
+    // now we need to find a workerpool order and match it with the request order and app order?
+    // // get workerpool order
+    console.log("\nWORKERPOOL_ADDERSS ORDER ...");
+    const { count, orders } = await iexec.orderbook.fetchWorkerpoolOrderbook({category: CATEGORY, workerpool: WORKERPOOL_ADDERSS, minTag:['tee']});
+    const workerpoolorder = orders[0]?.order;
+    if (!workerpoolorder) 
+        throw Error(`no workerpoolorder found for app ${APP_ADDRESS}`); 
+    else
+        console.log("found")
 
-    // Create, sign and publish app order (apparently we need this BEFORE request order?)
-    const ethProviderOwner = utils.getSignerFromPrivateKey(
-        // process.env.POKT_GOERLI_RPC,
-        "https://bellecour2.iex.ec/",
-        process.env.IEXEC_WALLET_PRIVATE_KEY
-    )
-    const configOwner = new IExecConfig({ ethProvider: ethProviderOwner });
-    const iexecordermoduleOwner = IExecOrderModule.fromConfig(configOwner);
+    // // get app order
+    console.log("\nAPP ORDER ...");
+    const { orders: appOrders } = await iexec.orderbook.fetchAppOrderbook(
+        APP_ADDRESS, {dataset: DATASET_ADDRESS, workerpool: WORKERPOOL_ADDERSS, minTag: ['tee']}
+    );
+    const appOrder = appOrders && appOrders[0] && appOrders[0].order;
+    if (!appOrder) 
+        throw Error(`no apporder found for app ${APP_ADDRESS}`); 
+    else
+        console.log("found")
 
-    // const apporderTemplate = await iexecordermoduleOwner.createApporder({ app: APP_ADDRESS });
-    // const signedApporder = await iexecordermoduleOwner.signApporder(apporderTemplate);
-    // const apporderHash = await iexecordermoduleOwner.publishApporder(signedApporder);
-    // console.log('Published App Order: ', apporderHash);
-
+    // // get dataset order
+    console.log("\nDATASET ORDER ...");
+    const { orders : dsOrders } = await iexec.orderbook.fetchDatasetOrderbook(DATASET_ADDRESS, {app: APP_ADDRESS, workerpool: WORKERPOOL_ADDERSS, minTag: ['tee']});
+    const datasetOrder = dsOrders && dsOrders[0] && dsOrders[0].order;
+    if (!datasetOrder) 
+        throw Error(`no apporder found for app ${APP_ADDRESS}`); 
+    else
+        console.log("found")
 
     // create request order
-    const iexecordermodule = IExecOrderModule.fromConfig(config);
-
+    console.log("\nREQUESTER ORDER ...");
     // prerequisities: app developer secret (without 0x) & secret dataset pushed to the SMS
-    const requestorderTemplate = await iexecordermodule.createRequestorder({
-        // app: '0x6B2f9C513E51965A0dB9BA1EEa5bC81E5Fc7C711', // non-tee old app
-        app: APP_ADDRESS, // new tee app
-        requester: wallet.address,
+    const requestorderTemplate = await iexec.order.createRequestorder({
+        app: APP_ADDRESS,
+        requester: ethProvider.address,
         volume: 1,
         category: 0,
         trust: 1,
         dataset: DATASET_ADDRESS,
+        workerpool: WORKERPOOL_ADDERSS,
         tag: ["tee"],
         params: {
-            iexec_args: hash + ' ' + receipt.transactionHash,//'TODO: msgHash msg',
+            iexec_args: msgHash + ' ' + receipt.transactionHash,//'TODO: msgHash msg',
             dataset: DATASET_ADDRESS,
             tag: "tee",
             iexec_secrets: { 
-                "1": "signature", //"TODO: msgSig",
-                "2": "voucherid" //"TODO: voucherId"
-            },
-            iexec_result_encryption: true
+                "1": secretName1, //"TODO: msgSig",
+                "2": secretName2 //"TODO: voucherId"
+            }//,
+            //iexec_result_encryption: true
         }
     });
+
     // sign request order 
-    const signedRequestorder = await iexecordermodule.signRequestorder(requestorderTemplate);
+    const signedRequestorder = await iexec.order.signRequestorder(requestorderTemplate);
     // publish request order
-    const requestOrderHash = await iexecordermodule.publishRequestorder(signedRequestorder);
-    console.log("\nPublished Request order: " + requestOrderHash);
+    const requestOrderHash = await iexec.order.publishRequestorder(signedRequestorder);
+    console.log("Published Request order: " + requestOrderHash);
 
-
-    // now we need to find a workerpool order and match it with the request order and app order?
-    const iexecOrderbook = IExecOrderbookModule.fromConfig(config);
-
-    // get workerpool order
-    const { count, orders } = await iexecOrderbook.fetchWorkerpoolOrderbook({CATEGORY, WORKERPOOL, minTag:['tee']});
-    const workerpoolorder = orders[0]?.order;
-
-    // get app order
-    const { orders: appOrders } = await iexecOrderbook.fetchAppOrderbook(
-        APP_ADDRESS, {minTag: ['tee']}
-    );
-    const appOrder = appOrders && appOrders[0] && appOrders[0].order;
-    if (!appOrder) throw Error(`no apporder found for app ${APP_ADDRESS}`);
-
-    // get dataset order
-    const { order, remaining } = await iexec.orderbook.fetchDatasetorder(orderHash);
-    
     // FINALLY: MATCH ORDERS
-    // const dealId = "0xf335a1a7ff88caaf383197e12bea4fa771647bc881431d5cc30fcc1a42c6b20d" // debug (apparently can only be one deal at a time?)
-    const { dealId, taskTxHash } = await iexecordermodule.matchOrders({
+    console.log("\nMATCHING ORDERS ...");
+    const { dealId, taskTxHash } = await iexec.order.matchOrders({
         apporder: appOrder,
         requestorder: signedRequestorder,
         workerpoolorder: workerpoolorder,
-        datasetorder: order
+        datasetorder: datasetOrder
     });
     console.log(`created deal ${dealId} in tx ${taskTxHash}`);
     // get taskId from dealId
-    const iexecDeal = IExecDealModule.fromConfig(config);
-    const deal = await iexecDeal.show(dealId);
+    const deal = await iexec.deal.show(dealId);
     const taskId = deal.tasks["0"];
     console.log("taskId from deal: " + taskId);
 
-
     // FINALLLLYYY get results
-    const iexecTask = IExecTaskModule.fromConfig(config);
-    
     console.log("Fetching results... (this may take a while)");
     // try every 5 minutes to get the results
     var res = null;
@@ -236,7 +239,6 @@ const main = async () => {
                 ipfsGatewayURL: "https://ipfs.iex.ec"
             });
             console.log("res: " + res);
-            //the results are in the following format: {"msg": ["voucherId;amount"], "msg_hash": [sign_msg.messageHash.hex()], "sig": [sign_msg.signature.hex()]}
             break;
         } catch (error) {
             console.log("Error fetching results: " + error);

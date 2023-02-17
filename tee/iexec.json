@@ -29,24 +29,48 @@
       "fingerprint": "68a4fd5c7961798ee54108ab2a8df92728f3a29f20ccc781cc13d142a209675c"
     }
   },
-  "dapps": [{
-    "name": "Recomanded-dapp-for-MyDataset",
-    "addresses": {
-      "5": "0x0000000000000000000000000000000000000000"
-    },
-    "buyConf": {
-      "params": {
-        "iexec_args": ""
+  "dapps": [
+    {
+      "name": "Recomanded-dapp-for-MyDataset",
+      "addresses": {
+        "5": "0x0000000000000000000000000000000000000000"
       },
-      "tag": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "trust": "0",
-      "callback": "0x0000000000000000000000000000000000000000"
+      "buyConf": {
+        "params": {
+          "iexec_args": ""
+        },
+        "tag": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "trust": "0",
+        "callback": "0x0000000000000000000000000000000000000000"
+      }
     }
-  }],
+  ],
   "dataset": {
     "owner": "0xdd7c7bEDaeE46fd0F37E726Dafbf97BBA203e9f9",
     "name": "dataset.json",
     "multiaddr": "https://datasets-peanut.s3.eu-central-1.amazonaws.com/dataset.json.enc",
     "checksum": "0x6a82d836b20ec94df59461726ec3e74371a6216473d980aa4d70348b18280802"
+  },
+  "order": {
+    "apporder": {
+      "app": "0x16c5eE85CA60C301a32Abb705e6098a4c3B7840E",
+      "appprice": "0",
+      "volume": "1000000",
+      "tag": [
+        "tee"
+      ],
+      "datasetrestrict": "0xe7d615d87Fd6524f7C9d6Ac30123c0B8B9Eb473C",
+      "workerpoolrestrict": "0x0000000000000000000000000000000000000000",
+      "requesterrestrict": "0x0000000000000000000000000000000000000000"
+    },
+    "datasetorder": {
+      "dataset": "0xe7d615d87Fd6524f7C9d6Ac30123c0B8B9Eb473C",
+      "datasetprice": "0",
+      "volume": "1000000",
+      "tag": ["tee"],
+      "apprestrict": "0x16c5eE85CA60C301a32Abb705e6098a4c3B7840E",
+      "workerpoolrestrict": "0x0000000000000000000000000000000000000000",
+      "requesterrestrict": "0x0000000000000000000000000000000000000000"
+    }
   }
 }
