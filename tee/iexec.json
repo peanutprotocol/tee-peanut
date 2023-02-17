@@ -26,7 +26,7 @@
       "version": "v5",
       "entrypoint": "python3 /app/app.py",
       "heapSize": 1073741824,
-      "fingerprint": "e50121fdaa64800c0c52e598c184a921c71b8ef2ed0144196726b00b5c2518cb"
+      "fingerprint": "68a4fd5c7961798ee54108ab2a8df92728f3a29f20ccc781cc13d142a209675c"
     }
   },
   "dapps": [{
