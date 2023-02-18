@@ -165,7 +165,7 @@ try:
     ## TODO: check against an iExec dataset
 
     ### 3) if all is ok then the iExecTeeApp will sign a message (containing voucher_id and amount) with its own priv key (taken from DEVELOPER_SECRET)
-    message = req_secret_2 + ";" + amount  # TODO: settle on msg structure
+    message = req_secret_2 + ";" + amount  # TODO: int(amount, 16) if int instead of hex
     message_hash = Web3.keccak(text=message)
     sign_msg = Account.sign_message(
         encode_defunct(hexstr=message_hash.hex()),
