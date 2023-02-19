@@ -35,7 +35,7 @@ const main = async () => {
     // ////////////////////////////////
     // // 1. CREATE DEPOSIT
     // ////////////////////////////////
-    // console.log("\nCreating deposit...");
+    console.log("\nCreating deposit...");
 
     // // initialize test wallet and set provider
     const provider = new ethers.providers.JsonRpcProvider(process.env.POKT_GOERLI_RPC);
@@ -44,15 +44,14 @@ const main = async () => {
     // instantiate contract
     const peanutContract = new ethers.Contract(process.env.GOERLI_CONTRACT_ADDRESS, peanutLibrary.PRIVATE_PEANUT_ABI, wallet);
 
-    //UNCOMMENT NEXT LINES IN FINAL VERSION
     // make deposit
-    // const tx = await peanutContract.deposit({value: ethers.utils.parseEther("0.0123")});
+    const tx = await peanutContract.deposit({value: ethers.utils.parseEther("0.0123")});
 
-    // // get receipt
-    // const receipt = await tx.wait();
-    // // console.log("Full Receipt: " + JSON.stringify(receipt));
-    // const txHash = receipt.transactionHash;
-    const receipt = { transactionHash: "0xed89062ab5c2be24c31d1dbd5895133d01f330dd362921a49682ad322de613f8" }
+    // get receipt
+    const receipt = await tx.wait();
+    console.log("Full Receipt: " + JSON.stringify(receipt));
+    const txHash = receipt.transactionHash;
+    //const receipt = { transactionHash: "0xed89062ab5c2be24c31d1dbd5895133d01f330dd362921a49682ad322de613f8" }
 
     ////////////////////////////////
     // 2. CREATE VOUCHER
@@ -245,6 +244,7 @@ const main = async () => {
     const arrayBuffer = await zippedFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     fs.writeFileSync('results.zip', buffer);
+    
     const zip = new StreamZip.async({ file: 'results.zip' });
     const data = await zip.entryData('result.txt');
     await zip.close();
@@ -261,7 +261,7 @@ const main = async () => {
     // Withdraw funds from smart contract
     // the results are in the following format: {"msg": ["voucherId;amount"], "msg_hash": [sign_msg.messageHash.hex()], "sig": [sign_msg.signature.hex()]}
     const _recipientAddress = wallet2.address;
-    const _amount = BigNumber.from(jsonFile.msg.split(";")[1]); // TODO: what format for the smartcontract? wei?
+    const _amount = jsonFile.msg.split(";")[1];
     const _voucherId = jsonFile.msg.split(";")[0];
     const _messageHash = jsonFile.msg_hash; 
     const _signature = jsonFile.sig;

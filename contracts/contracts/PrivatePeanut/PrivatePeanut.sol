@@ -30,6 +30,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract PrivatePeanut is Ownable {
     // events
@@ -73,7 +74,6 @@ contract PrivatePeanut is Ownable {
         bytes32 _messageHash,
         bytes memory _signature
     ) external returns (bool) {
-
         // Ensure the signature has not been previously used
         // TODO: merkle tree
         for (uint256 i = 0; i < signatures.length; i++) {
@@ -82,9 +82,19 @@ contract PrivatePeanut is Ownable {
             }
         }
 
-        // Check that hash(voucherId, amount) == messageHash
-        bytes32 voucherHash = keccak256(abi.encodePacked(_voucherId, _amount));
-        require(voucherHash == _messageHash, "INVALID VOUCHER HASH");
+        // Check that hash(voucherId,";", amount) == messageHash
+        bytes32 voucherHash = keccak256(
+            abi.encodePacked(
+                Strings.toString(_voucherId),
+                ";",
+                Strings.toHexString(_amount)
+            )
+        );
+
+        require(
+            _messageHash == ECDSA.toEthSignedMessageHash(voucherHash),
+            "INVALID VOUCHER HASH"
+        );
 
         // Check that the signature is valid (signed by the TEE)
         address voucherSigner = getSigner(_messageHash, _signature);
