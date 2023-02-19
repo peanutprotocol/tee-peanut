@@ -6,6 +6,6 @@ docker run \
     -e IEXEC_DATASET_FILENAME=dataset.json \
     -e IEXEC_APP_DEVELOPER_SECRET=7ccca75d019dbae79ac4266501578684ee64eeb3c9212105f7a3bdc0ddb0f27e \
     -e IEXEC_REQUESTER_SECRET_1=0xd03b2ccc71936c39cf9573510c15df27c5a34b6c8482df1a6efe8994f4bb0e8d00af09b522012ec1f8d7f8573dea8449faf168a0fa92c6b99238d07679e7f1631b \
-    -e IEXEC_REQUESTER_SECRET_2=id1 \
-    montenegrohugo/peanut-v0.2:tee-debug \
+    -e IEXEC_REQUESTER_SECRET_2=1 \
+    montenegrohugo/peanut-v0.3:tee-debug \
     0xf32bd66495eebca9a0d3ba8f3bab9daacf0bd522261c47b18281d5d51191ce2a 0x7d5fd8969cd3fcf276aea950d1c978b002819cd068c59d7bb5b97926bb7a39e1 

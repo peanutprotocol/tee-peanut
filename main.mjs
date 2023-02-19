@@ -17,7 +17,7 @@ const { IExec, IExecConfig, IExecAccountModule, IExecDealModule, IExecWalletModu
 import dotenv from 'dotenv';
 dotenv.config();
 
-const APP_ADDRESS = "0x16c5eE85CA60C301a32Abb705e6098a4c3B7840E";
+const APP_ADDRESS = "0xd09A816944332207f956E662E3ab178D0347BcF8";
 const DATASET_ADDRESS = "0xe7d615d87Fd6524f7C9d6Ac30123c0B8B9Eb473C";
 const CATEGORY = 0;
 const WORKERPOOL_ADDERSS = "0x9849E7496CdBFf132c84753591D09B181c25f29a"; // workerpool v7-debug.main.pools.iexec.eth // 0xeb14dc854a8873e419183c81a657d025ec70276b v7-prod.main.pools.iexec.eth
@@ -224,7 +224,7 @@ const main = async () => {
     console.log("taskId from deal: " + taskId);
 
     // FINALLLLYYY get results
-    console.log("FETCHING RESULTS... (this may take a while)");
+    console.log("\nFETCHING RESULTS... (this may take a while)");
     // try every 5 minutes to get the results
     var res = null;
     const sleep = ms => new Promise(res => setTimeout(res, ms));
@@ -235,7 +235,7 @@ const main = async () => {
         } catch (error) {
             console.log("Error fetching results: " + error);
             console.log("Retrying in 5 minutes...");
-            await sleep(300000);
+            await sleep(360000);
         }
     }
     
