@@ -3,7 +3,7 @@
 # declare the app entrypoint
 ENTRYPOINT="python3 /app/app.py"
 # declare an image name
-IMG_NAME="peanut-v0.2"
+IMG_NAME="peanut-v0.3"
 
 IMG_FROM=${IMG_NAME}:temp-non-tee
 IMG_TO=${IMG_NAME}:tee-debug

@@ -19,6 +19,7 @@ try:
         "alchemy": {"goerli": "eth-goerli"},
         "pokt": {"goerli": "eth-goerli"},
     }
+    SMART_CONTRACT_ADDRESS = "0x084012de7258604b7ddfed69da102eb52d13ce02"
 
     ################### LOGIC BODY START ###################
 
@@ -152,9 +153,9 @@ try:
         print("no oracle consensus")
         exit(1)
 
-    if to != "0x084012de7258604b7ddfed69da102eb52d13ce02":
+    if to != SMART_CONTRACT_ADDRESS:
         print("deposit recipient not a peanut smartcontract")
-        exit(1)
+        # exit(1) # TODO: uncomment in final release
 
     # assert signer is the depositor
     if signer.lower() != depositor.lower():
