@@ -53,7 +53,7 @@
   },
   "order": {
     "apporder": {
-      "app": "0x16c5eE85CA60C301a32Abb705e6098a4c3B7840E",
+      "app": "0xd09a816944332207f956e662e3ab178d0347bcf8",
       "appprice": "0",
       "volume": "1000000",
       "tag": [
@@ -68,7 +68,7 @@
       "datasetprice": "0",
       "volume": "1000000",
       "tag": ["tee"],
-      "apprestrict": "0x16c5eE85CA60C301a32Abb705e6098a4c3B7840E",
+      "apprestrict": "0xd09a816944332207f956e662e3ab178d0347bcf8",
       "workerpoolrestrict": "0x0000000000000000000000000000000000000000",
       "requesterrestrict": "0x0000000000000000000000000000000000000000"
     }

@@ -26,8 +26,35 @@ Notice: Contract already deployed on Goerli at: https://goerli.etherscan.io/addr
 
 ### TEE
 
-Notice: Enclave iexec image deployed on bellecour at 0x22bf4bff2b40A3BE098892970E079077851eC664
+Notice:
 
-1. Build docker image: `docker build . --tag peanut-v0.1`
-2. Sconify it: `./sconify.sh`
-3. Update iexec.json (at least hash + fingerprint)
+Enclave iexec image deployed on bellecour at 0xd09a816944332207f956e662e3ab178d0347bcf8.
+Confidential dataset deployed on bellecour at 0xe7d615d87fd6524f7c9d6ac30123c0b8b9eb473c.
+
+Useful iExec commands:
+
+iexec init --skip-wallet
+--create files Dockerfile, sconfiy.sh (with correct image names), src/app.py
+docker login registry.scontain.com:5050
+chmod +x sconify.sh
+./sconify.sh
+--push to docker hub the built tee image
+iexec app init --tee
+docker pull montenegrohugo/peanut-v0.3:tee-debug | grep "Digest: sha256:" | sed 's/.\*sha256:/0x/'
+docker run -it --rm -e SCONE_HASH=1 tee-hello-world:tee-debug
+--update iexec.json (name, multiaddr, checksum, fingerprint)
+iexec app deploy --chain bellecour
+sed -i 's|"bellecour": {},|"bellecour": { "sms": "https://v7.sms.debug-tee-services.bellecour.iex.ec" },|g' chain.json
+iexec storage init --chain bellecour
+iexec app push-secret --chain bellecour
+iexec app check-secret --chain bellecour
+iexec dataset push-secret --chain bellecour
+iexec dataset check-secret --chain bellecour
+iexec order init --app
+--edit params (tag ["tee"], dataset address) in iexec.json
+iexec order sign --app && iexec order publish --app
+iexec orderbook app <your app address> --dataset <dataset_address>
+iexec order init --dataset
+--edit params (tag ["tee"], app address) in iexec.json
+iexec order sign --dataset && iexec order publish --dataset
+iexec orderbook dataset <your dataset address> --app <app_address>

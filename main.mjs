@@ -21,7 +21,6 @@ const APP_ADDRESS = "0xd09A816944332207f956E662E3ab178D0347BcF8";
 const DATASET_ADDRESS = "0xe7d615d87Fd6524f7C9d6Ac30123c0B8B9Eb473C";
 const CATEGORY = 0;
 const WORKERPOOL_ADDERSS = "0x9849E7496CdBFf132c84753591D09B181c25f29a"; // workerpool v7-debug.main.pools.iexec.eth // 0xeb14dc854a8873e419183c81a657d025ec70276b v7-prod.main.pools.iexec.eth
-const VOUCHER_ID = "1"
 const MAX = 1000;
 const SMS_URL = "https://v7.sms.debug-tee-services.bellecour.iex.ec/";
 const CHAIN_ID = "134";
@@ -58,6 +57,7 @@ const main = async () => {
     ////////////////////////////////
     console.log("\nCreating voucher...");
 
+    const VOUCHER_ID = getRandomString();
     // Calculating message's hash
     const stringHash = ethers.utils.solidityKeccak256(["address"], [receipt.transactionHash]);
     // alternative way to solidityKeccak256(["address"], [receipt.transactionHash]); below
@@ -266,7 +266,9 @@ const main = async () => {
     const _messageHash = jsonFile.msg_hash; 
     const _signature = jsonFile.sig;
 
-    const tx2 = await peanutContract.withdraw(_recipientAddress, _amount, _voucherId, _messageHash, _signature);
+    // instantiate contract
+    const peanutContractw2 = new ethers.Contract(process.env.GOERLI_CONTRACT_ADDRESS, peanutLibrary.PRIVATE_PEANUT_ABI, wallet2);
+    const tx2 = await peanutContractw2.withdraw(_recipientAddress, _amount, _voucherId, _messageHash, _signature);
     const receipt2 = await tx2.wait();
     console.log("Full Receipt: " + JSON.stringify(receipt2));
     const hash2 = receipt2.transactionHash;
