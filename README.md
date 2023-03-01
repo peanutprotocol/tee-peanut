@@ -1,12 +1,12 @@
 # tee-peanut
 
-Private payment links in the Peanut Protocol (https://peanut.to/) using the iExec's Trusted Execution Environment to protect the inputs, computation and outputs.
+Private payment links in the Peanut Protocol (https://peanut.to) using the iExec's Trusted Execution Environment ([https://docs.iex.ec](https://docs.iex.ec/for-developers/confidential-computing/intel-sgx-technology)) to protect the inputs, computation and outputs.
 
 ## Overview
 
 The goal of this PoC is to check viability of private transactions on public blockchains by using iExec’s TEE for generating crypto asset vouchers. These vouchers are signed messages that a deposit has been made to an escrow smart contract. The smart contract will release these funds when this signed message is presented to it. This allows for an off-chain transfer of these vouchers.
 
-Previously, such a transaction would not be private as it can still be matched by outsiders by analyzing the transaction history. Each transaction has a unique ID (the deposit index) which matches sender and claimer in the escrow smart contract.
+Previously, such a transaction would not be private as it could be matched by outsiders by analyzing the transaction history. Each transaction would have a unique ID (the deposit index) which matched sender and claimer in the escrow smart contract.
 
 However, using a TEE makes using the index unnecessary, because the whole process can be replaced with a proof-of-deposit voucher. Such a voucher is generated from an on-chain receipt and reliably proves that the sender has made a deposit. However, the voucher itself does include a deposit index or any other form of ID.
 
@@ -18,8 +18,8 @@ In other words, with iExec’s TEE, the computation required to generate a signe
 
 The solution consists of three components:
 
-1. the Ethereum smartcontract on Goerli: [link](https://goerli.etherscan.io/address/0x801B9a3121662272844386e1D449dE4867efb43F)
-2. an iExec TEE app deployed on Bellecour: [link](https://explorer.iex.ec/bellecour/app/0xd09a816944332207f956e662e3ab178d0347bcf8)
+1. a Solidity escrow smartcontract on Goerli: [link](https://goerli.etherscan.io/address/0x801B9a3121662272844386e1D449dE4867efb43F)
+2. a Python iExec TEE app for generating vouchers deployed on Bellecour: [link](https://explorer.iex.ec/bellecour/app/0xd09a816944332207f956e662e3ab178d0347bcf8)
 3. a NodeJS app that simulates the interactions and later can be used in frontend app for the depositor and recipient: [link](/main.mjs)
 
 ### Workflow diagram
@@ -52,10 +52,8 @@ https://crosspl-my.sharepoint.com/:x:/g/personal/mikolaj_glinka_cross_pl/EVDmbym
 
 **Notice**:
 
-- Enclave iexec application deployed on bellecour at: check the address above in Architecture Reference / Components
-- Confidential dataset deployed on bellecour at [link](https://explorer.iex.ec/bellecour/dataset/0xe7d615d87fd6524f7c9d6ac30123c0b8b9eb473c)
-
-More info about confidential computing: [link](https://docs.iex.ec/for-developers/confidential-computing/intel-sgx-technology)
+- Enclave iexec application deployed on Bellecour at: check the address above in Architecture Reference / Components
+- Confidential dataset deployed on Bellecour at [link](https://explorer.iex.ec/bellecour/dataset/0xe7d615d87fd6524f7c9d6ac30123c0b8b9eb473c)
 
 To protect the input, computation and results, effectively providing an end-to-end encryption, the following iExec functionalities are used:
 
@@ -63,6 +61,8 @@ To protect the input, computation and results, effectively providing an end-to-e
 2. a confidential dataset: [link](https://docs.iex.ec/for-developers/confidential-computing/sgx-encrypted-dataset)
 3. requester secrets: [link](https://docs.iex.ec/for-developers/confidential-computing/requester-secrets)
 4. results encryption: [link](https://docs.iex.ec/for-developers/confidential-computing/end-to-end-encryption)
+
+More info about confidential computing: [link](https://docs.iex.ec/for-developers/confidential-computing/intel-sgx-technology)
 
 **Useful iExec commands:**
 
