@@ -40,7 +40,7 @@ https://crosspl-my.sharepoint.com/:x:/g/personal/mikolaj_glinka_cross_pl/EVDmbym
 
 ### Smart Contracts
 
-Notice: Contract already deployed on Goerli at: check the address above in Architecture Reference / Components.
+**Notice**: Contract already deployed on Goerli at: check the address above in Architecture Reference / Components.
 
 1. Install Python & python3-venv
 2. Create a virtual environment: `python3 -m venv venv` & activate it: `source venv/bin/activate`
@@ -50,21 +50,21 @@ Notice: Contract already deployed on Goerli at: check the address above in Archi
 
 ### TEE
 
-Notice:
+**Notice**:
 
-Enclave iexec application deployed on bellecour at: check the address above in Architecture Reference / Components. \
-Confidential dataset deployed on bellecour at [link](https://explorer.iex.ec/bellecour/dataset/0xe7d615d87fd6524f7c9d6ac30123c0b8b9eb473c). \
+- Enclave iexec application deployed on bellecour at: check the address above in Architecture Reference / Components
+- Confidential dataset deployed on bellecour at [link](https://explorer.iex.ec/bellecour/dataset/0xe7d615d87fd6524f7c9d6ac30123c0b8b9eb473c)
 
 More info about confidential computing: [link](https://docs.iex.ec/for-developers/confidential-computing/intel-sgx-technology)
 
 To protect the input, computation and results, effectively providing an end-to-end encryption, the following iExec functionalities are used:
 
-1. an app developer secret: [link](https://docs.iex.ec/for-developers/confidential-computing/app-developer-secret),
-2. a confidential dataset: [link](https://docs.iex.ec/for-developers/confidential-computing/sgx-encrypted-dataset),
-3. requester secrets: [link](https://docs.iex.ec/for-developers/confidential-computing/requester-secrets),
-4. results encryption: [link](https://docs.iex.ec/for-developers/confidential-computing/end-to-end-encryption).
+1. an app developer secret: [link](https://docs.iex.ec/for-developers/confidential-computing/app-developer-secret)
+2. a confidential dataset: [link](https://docs.iex.ec/for-developers/confidential-computing/sgx-encrypted-dataset)
+3. requester secrets: [link](https://docs.iex.ec/for-developers/confidential-computing/requester-secrets)
+4. results encryption: [link](https://docs.iex.ec/for-developers/confidential-computing/end-to-end-encryption)
 
-Useful iExec commands:
+**Useful iExec commands:**
 
 iexec init --skip-wallet \
 --create files Dockerfile, sconfiy.sh (with correct image names), src/app.py \
